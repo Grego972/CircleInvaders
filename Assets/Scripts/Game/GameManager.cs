@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour {
 
 	public float newGameDelay = 6f;
 
-	public List<WeaponSettings> weaponList = new List<WeaponSettings>();
+	[SerializeField]
+	private List<WeaponSettings> weaponList = new List<WeaponSettings>();
 
 	[SerializeField]
 	private float gameTime = 90f;
@@ -214,5 +215,10 @@ public class GameManager : MonoBehaviour {
 	public WeaponSettings GetWeapon(int idx)
 	{
 		return weaponList[ Mathf.Clamp(idx,0,weaponList.Count)];
+	}
+
+	public int GetWeaponCount()
+	{
+		return weaponList.Count;
 	}
 }

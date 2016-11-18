@@ -699,6 +699,7 @@ MonoBehaviour:
   weaponList:
   - {fileID: 11400000, guid: 13cc94972ade4460b85126d7d0887a26, type: 2}
   - {fileID: 11400000, guid: 155c2fe702b2a4dd3a48ed793a3517f3, type: 2}
+  - {fileID: 11400000, guid: f7aefa866149f42a4978beb099cbab7c, type: 2}
   gameTime: 30
 --- !u!4 &305542432
 Transform:

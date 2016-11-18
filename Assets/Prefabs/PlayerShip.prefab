@@ -349,7 +349,7 @@ MonoBehaviour:
   speed: {x: 50, y: 25}
   position: {x: 0, y: 0}
   bulletSpawnTransform: {fileID: 4000014070371662}
-  currentWeaponIndex: 1
+  currentWeaponIndex: 0
   audioSource: {fileID: 82000011140606738}
 --- !u!198 &198000010604901698
 ParticleSystem:

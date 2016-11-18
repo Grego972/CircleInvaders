@@ -104,6 +104,12 @@ public abstract class AbstractPlayer : MonoBehaviour {
 		audioSource.PlayOneShot(w.soundFx);
 	}
 
+
+	public void ChangeWeapon(int idx)
+	{
+		currentWeaponIndex = Mathf.Clamp(idx,0,manager.GetWeaponCount());
+	}
+
 	public abstract void UpdateControl();
 
 }
