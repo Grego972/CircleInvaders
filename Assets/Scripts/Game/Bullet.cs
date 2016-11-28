@@ -9,8 +9,11 @@ public class Bullet : MonoBehaviour {
 	public float destroyAfter = 5f;
 
 
+
 	private  Rigidbody myRigidbody;
 	GameManager manager;
+
+	PlayerBase currentShooter;
 
 	void OnEnable () {
 	
@@ -43,13 +46,35 @@ public class Bullet : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other) {
 
+		if(other.tag == "Asteroid")
+		{
+			AsteroidProp ap = other.GetComponent<AsteroidProp>();
+			ap.TakeHealthDamage(10000000f,currentShooter.gameObject);
+			currentShooter.Score += ap.scorePoint;
+
+		}
+		else if(other.tag == "Player")
+		{
+			PlayerBase pb = other.GetComponent<PlayerBase>();
+			pb.TakeHealthDamage(damage,currentShooter.gameObject);
+			currentShooter.Score += Mathf.RoundToInt( pb.Score * 0.2f);
+		}
+
 		//CancelInvoke("AutoDestroy");
 		AutoDestroy();
 	}
 
 
+
+
 	private void AutoDestroy()
 	{
 		Destroy(this.gameObject);
+	}
+
+
+	public void SetShooter(PlayerBase _player)
+	{
+		currentShooter = _player;
 	}
 }

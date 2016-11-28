@@ -20,10 +20,11 @@ GameObject:
   m_Component:
   - 4: {fileID: 4000012138913578}
   - 114: {fileID: 114000011888553840}
+  - 136: {fileID: 136000013031436576}
   - 54: {fileID: 54000014045137102}
   m_Layer: 22
   m_Name: Asteroid03
-  m_TagString: Untagged
+  m_TagString: Asteroid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38,7 +39,6 @@ GameObject:
   - 4: {fileID: 4000012891117886}
   - 33: {fileID: 33000011349040184}
   - 23: {fileID: 23000012880016310}
-  - 136: {fileID: 136000013929451060}
   m_Layer: 22
   m_Name: Asteroid_03
   m_TagString: Enemy
@@ -136,15 +136,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 10
+  scorePoint: 10
   split: 0
   asteroidPrefabs:
   - {fileID: 1000011273377620}
---- !u!136 &136000013929451060
+  fxExplosion: {fileID: 100004, guid: a6d58f54ce5934781962a4f887e834f3, type: 2}
+--- !u!136 &136000013031436576
 CapsuleCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000011564566238}
+  m_GameObject: {fileID: 1000011273377620}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1

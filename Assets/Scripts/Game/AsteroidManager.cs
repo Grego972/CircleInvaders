@@ -3,6 +3,9 @@ using System.Collections;
 
 public class AsteroidManager : MonoBehaviour {
 
+
+
+
 	public GameManager manager;
 	[Space]
 	public GameObject[] asteroidPrefabs;
@@ -24,11 +27,13 @@ public class AsteroidManager : MonoBehaviour {
 	public LayerMask checkLayerMask;
 
 
+
 	private float nextPropTime = 0;
 
 	// Use this for initialization
 	void OnEnable () {
 		manager.OnGameStateChange += Manager_OnGameStateChange;
+
 	}
 
 	void OnDisable()
@@ -36,11 +41,32 @@ public class AsteroidManager : MonoBehaviour {
 		manager.OnGameStateChange -= Manager_OnGameStateChange;
 	}
 
+
 	void Manager_OnGameStateChange (GameManager.GameState s)
 	{
 		if(s == GameManager.GameState.Starting)
 		{
 			InitNextInstanciate();
+		}
+	}
+
+	void OnDrawGizmos() {
+		Gizmos.color = Color.red;
+		GuizmoCircle(zoneRadius);
+
+
+	}
+
+	private void GuizmoCircle(float radius, int slice = 100)
+	{
+		float inc = 360f/(float)slice;
+		Vector3 p0 = new Vector3(1f,0f,0f);
+		for(int i = 1 ; i<=slice; i++)
+		{
+			float a =Mathf.Deg2Rad*inc * (float) i;
+			Vector3 p1 = new Vector3(Mathf.Cos(a),0f,Mathf.Sin(a));
+			Gizmos.DrawLine(p0*radius, p1*radius);
+			p0 = p1;
 		}
 	}
 	
@@ -74,12 +100,12 @@ public class AsteroidManager : MonoBehaviour {
 	{
 		Vector3 asteroidScale = (Vector3.one +Random.insideUnitSphere*0.1f) *Random.Range(minScaleSize, maxScaleSize);
 
-		Vector3 asteroidPosition =ToVector3( Random.insideUnitCircle*zoneRadius);
+		Vector3 asteroidPosition =ToVector3( Random.insideUnitCircle*2f*zoneRadius);
 		float asteroidRadius = asteroidScale.magnitude;
 		int tryCount = 10;
 		while(Physics.CheckSphere(asteroidPosition,asteroidRadius,checkLayerMask) && tryCount >0)
 		{
-			asteroidPosition =ToVector3( Random.insideUnitCircle*zoneRadius);
+			asteroidPosition =ToVector3( Random.insideUnitCircle*2f*zoneRadius);
 			tryCount--;
 		}
 
@@ -94,7 +120,7 @@ public class AsteroidManager : MonoBehaviour {
 		go.transform.localScale = asteroidScale;
 		AsteroidProp a = go.GetComponent<AsteroidProp>();
 		a.health = 10;
-		a.split= 4;
+		a.split= 2;
 
 		Rigidbody r = go.GetComponent<Rigidbody>();
 		r.velocity = ToVector3(Random.insideUnitCircle.normalized*Random.Range(minVelocity,maxVelocity));

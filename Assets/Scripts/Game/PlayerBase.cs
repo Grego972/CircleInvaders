@@ -1,13 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class AbstractPlayer : MonoBehaviour {
+public class PlayerBase : MonoBehaviour, IDamagable {
 
 
 	private GameManager manager;
 
 	public string playerName;
-	public float playerHealth;
+
+	[SerializeField]
+	private float playerHealth;
+
+	//[SerializeField]
+	private int playerScore;
 
 	public Vector2 speed;
 
@@ -31,12 +36,12 @@ public abstract class AbstractPlayer : MonoBehaviour {
 
 		if(manager.State == GameManager.GameState.Running)
 		{
-			UpdateControl();
+			//UpdateControl();
 			UpdateWeapon();
 		}
 	}
 
-	public void move(Vector2 normalizedDirection)
+	public void Move(Vector2 normalizedDirection)
 	{
 		
 		Vector3 p = this.transform.TransformPoint(new Vector3( normalizedDirection.x*speed.x,0,normalizedDirection.y*speed.y) * Time.deltaTime);
@@ -87,6 +92,8 @@ public abstract class AbstractPlayer : MonoBehaviour {
 		_fireJustPress = false;
 
 	}
+	public bool doPitch = true;
+	public float pitchVal = 0.2f;
 
 	private void FireWeapon(WeaponSettings w)
 	{
@@ -98,9 +105,13 @@ public abstract class AbstractPlayer : MonoBehaviour {
 		for(int i = 0; i< w.prefabs.Length ; i++)
 		{
 			WeaponSettings.WeaponSettingsItem prefab = w.prefabs[i];
-			Instantiate(prefab.bulletPrefabs,p + bulletSpawnTransform.TransformVector(prefab.offset),rot*Quaternion.AngleAxis(prefab.angle,Vector3.up) );	
+			GameObject go = Instantiate(prefab.bulletPrefabs,p + bulletSpawnTransform.TransformVector(prefab.offset),rot*Quaternion.AngleAxis(prefab.angle,Vector3.up) ) as GameObject;	
+			go.GetComponent<Bullet>().SetShooter(this);
 		}
 
+		if(doPitch)
+			audioSource.pitch =1f +  Random.Range(-pitchVal, pitchVal);
+		
 		audioSource.PlayOneShot(w.soundFx);
 	}
 
@@ -110,6 +121,67 @@ public abstract class AbstractPlayer : MonoBehaviour {
 		currentWeaponIndex = Mathf.Clamp(idx,0,manager.GetWeaponCount());
 	}
 
-	public abstract void UpdateControl();
+
+	public float Health
+	{
+		get
+		{
+			return playerHealth;
+		}
+
+		private set
+		{
+			if(value != playerHealth)
+			{
+				playerHealth = value;
+				if(playerHealth <= 0f)
+				{
+					playerHealth = 0;
+					PlayerDie();
+				}
+			}
+		}
+	}
+
+	public int Score
+	{
+		get
+		{
+			return playerScore;
+		}
+
+		set
+		{
+			if(value != playerScore)
+			{
+				playerScore = value;
+			}
+		}
+	}
+
+	private void PlayerDie()
+	{
+		//TODO
+	}
+
+	#region IDamagable implementation
+
+	public void TakeHealthDamage (float healthDamage, GameObject fromObject)
+	{
+		Health -= healthDamage;
+
+	}
+
+	public void TakeHealthBonus (float healthBonus)
+	{
+		Health += healthBonus;
+	}
+
+	public void TakeWeaponBonus (int i)
+	{
+		ChangeWeapon(i);
+	}
+
+	#endregion
 
 }

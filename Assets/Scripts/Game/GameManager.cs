@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour {
 
 	private float currentPlayTime = 0;
 
-	private List<AbstractPlayer> playerList = new List<AbstractPlayer>();
+	private List<PlayerBase> playerList = new List<PlayerBase>();
 
 	public delegate void GameStateEventHandler(GameState s);
 
@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour {
 		GameObject go = Instantiate(playerPrefab);
 		Vector2 p = Random.insideUnitCircle* Random.Range(board.minLimit, board.maxLimit);
 		go.transform.position = new Vector3(p.x, 0, p.y);
-		AbstractPlayer player = go.GetComponent<AbstractPlayer>();
+		PlayerBase player = go.GetComponent<PlayerBase>();
 		player.Init(this);
 		playerList.Add(player);
 
