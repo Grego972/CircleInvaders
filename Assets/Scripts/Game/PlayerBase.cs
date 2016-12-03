@@ -24,11 +24,31 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 
 	public AudioSource audioSource;
 
+	public UiPlayerInfo info;
+
+	public GameObject fxExplosion;
+
+	private float startPlayerHealth;
+
+	private float currentFireCount;
+
 	public void Init(GameManager m)
 	{
 		manager = m;
 
 		this.transform.LookAt(Vector3.zero,Vector3.forward);
+
+		WeaponSettings w = manager.GetWeapon(currentWeaponIndex);
+		currentFireCount = w.fireCount;
+
+		startPlayerHealth = playerHealth;
+		if(info != null)
+		{
+			info.PlayerName = playerName;
+			info.NormalizedLife = 1f;
+			info.NormalizedWeapon = 1f;
+			info.WeaponCircleVisibility = currentFireCount != -1;
+		}
 	}
 	
 	// Update is called once per frame
@@ -37,12 +57,15 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 		if(manager.State == GameManager.GameState.Running)
 		{
 			//UpdateControl();
-			UpdateWeapon();
+			if(IsAlive)
+				UpdateWeapon();
 		}
 	}
 
 	public void Move(Vector2 normalizedDirection)
 	{
+		if(!IsAlive)
+			return;
 		
 		Vector3 p = this.transform.TransformPoint(new Vector3( normalizedDirection.x*speed.x,0,normalizedDirection.y*speed.y) * Time.deltaTime);
 		this.transform.position = manager.board.Clamp(Vector3.zero,p);
@@ -97,6 +120,21 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 
 	private void FireWeapon(WeaponSettings w)
 	{
+		if(w.fireCount != -1)
+		{
+			if(currentFireCount <=0)
+			{
+				ChangeWeapon(0);
+				return;
+			}
+			currentFireCount --;
+
+			if(info)
+			{
+				info.NormalizedWeapon = (float) currentFireCount / (float) w.fireCount;
+			}
+		}
+
 		//Vector3 p = bulletSpawnTransform.position ;
 		Vector3 p = bulletSpawnTransform.TransformPoint(Vector3.right * Random.Range(-w.jitter,w.jitter) );
 		//Quaternion rot = bulletSpawnTransform.rotation;
@@ -119,8 +157,24 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 	public void ChangeWeapon(int idx)
 	{
 		currentWeaponIndex = Mathf.Clamp(idx,0,manager.GetWeaponCount());
+
+		currentFireCount = manager.GetWeapon(currentWeaponIndex).fireCount;
+
+		if(info)
+		{
+			info.WeaponCircleVisibility = currentFireCount != -1;
+			info.NormalizedWeapon = 1f;
+		}
+
 	}
 
+	public bool IsAlive
+	{
+		get
+		{
+			return playerHealth>0f;
+		}
+	}
 
 	public float Health
 	{
@@ -133,11 +187,17 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 		{
 			if(value != playerHealth)
 			{
+				
 				playerHealth = value;
 				if(playerHealth <= 0f)
 				{
 					playerHealth = 0;
 					PlayerDie();
+				}
+
+				if(info != null)
+				{
+					info.NormalizedLife = playerHealth / startPlayerHealth;
 				}
 			}
 		}
@@ -155,6 +215,11 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 			if(value != playerScore)
 			{
 				playerScore = value;
+
+				if(info != null)
+				{
+					info.PlayerScore = playerScore;
+				}
 			}
 		}
 	}
@@ -162,6 +227,29 @@ public class PlayerBase : MonoBehaviour, IDamagable {
 	private void PlayerDie()
 	{
 		//TODO
+
+		Renderer[] renderers = GetComponentsInChildren<Renderer>();
+		Collider[] colliders = GetComponentsInChildren<Collider>();
+
+		for(int i  = 0 ; i < renderers.Length ; i++)
+		{
+			renderers[i].enabled = false;
+		}
+
+		for(int i  = 0 ; i < colliders.Length ; i++)
+		{
+			colliders[i].enabled = false;
+		}
+
+		GameObject fx = Instantiate(fxExplosion,this.transform.position, Quaternion.identity) as GameObject;
+		//fx.GetComponent<UnityStandardAssets.Effects.ParticleSystemMultiplier>().multiplier = this.transform.localScale.magnitude;
+
+		if(info)
+		{
+			info.gameObject.SetActive(false);
+		}
+
+		//Destroy(this.gameObject);
 	}
 
 	#region IDamagable implementation

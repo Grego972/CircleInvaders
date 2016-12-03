@@ -70,6 +70,20 @@ public class AsteroidProp : MonoBehaviour, IDamagable {
 		Destroy(this.gameObject);
 	}
 
+	void OnCollisionEnter(Collision collision) {
+
+
+		if(collision.gameObject.tag == "Player")
+		{
+			PlayerBase pb = collision.gameObject.GetComponent<PlayerBase>();
+			pb.TakeHealthDamage(10,this.gameObject);
+			//AutoDestroy();
+			Explode();
+		}
+
+	}
+
+
 	#region IDamagable implementation
 
 	public void TakeHealthDamage (float healthDamage, GameObject fromObject)

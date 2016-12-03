@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServerConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" adress="ws://192.168.1.74:3003" name="UnityServer42" roomSize="16" />

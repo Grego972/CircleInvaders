@@ -17,6 +17,7 @@ MonoBehaviour:
   allowContinuisPress: 1
   jitter: 3
   angleJitter: 5
+  fireCount: 30
   soundFx: {fileID: 8300000, guid: bf75b984df8a84987bcf3a8bf6e2862d, type: 3}
   prefabs:
   - offset: {x: 0, y: 0, z: 0}

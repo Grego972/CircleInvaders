@@ -19,6 +19,7 @@ public class WeaponSettings : ScriptableObject {
 	public bool allowContinuisPress = true;
 	public float jitter = 0.5f;
 	public float angleJitter = 0f;
+	public int fireCount = 100;
 	public AudioClip soundFx;
 
 	public WeaponSettingsItem[] prefabs;
