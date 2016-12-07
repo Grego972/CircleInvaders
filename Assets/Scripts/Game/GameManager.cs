@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour {
 
 
 	public GameObject playerPrefab;
+	public GameObject webPlayerPrefab;
 
 	public UiCountDown uiCountDown;
 
@@ -134,14 +135,31 @@ public class GameManager : MonoBehaviour {
 		currentPlayTime = 0;
 		ClearPlayerList();
 
-		GameObject go = Instantiate(playerPrefab);
+		CreatePlayer(playerPrefab);
+		if(ServerManager.Instance.IsConnected)
+		{
+			int count = ServerManager.Instance.ClientList.Count;
+			for(int i = 0; i < count ; i++)
+			{
+				PlayerBase player = CreatePlayer(webPlayerPrefab);
+				player.GetComponent<WebClientPlayerController>().Init(ServerManager.Instance.ClientList[i]);
+			}
+		}
+
+	}
+
+	private PlayerBase CreatePlayer(GameObject _prefab)
+	{
+		GameObject go = Instantiate(_prefab);
 		Vector2 p = Random.insideUnitCircle* Random.Range(board.minLimit, board.maxLimit);
 		go.transform.position = new Vector3(p.x, 0, p.y);
 		PlayerBase player = go.GetComponent<PlayerBase>();
 		player.Init(this);
 		playerList.Add(player);
 
+		return player;
 	}
+
 
 
 	private void ClearPlayerList()

@@ -3,12 +3,20 @@ using System.Collections;
 
 public class ServerManager : MonoBehaviour {
 
+
+	private static ServerManager instance = null;
+
 	public ServerConfigXml config;
 
 	public bool loadXmlConfig = false;
 	public string configFilename = "config.xml";
 
 	WebSocketSharp.WebSocket ws;
+
+	private bool isConnected = false;
+
+	//private System.Collections.Generic.Dictionary<string, IWebClientKeyMessageHandler> webClients = new System.Collections.Generic.Dictionary<string, IWebClientKeyMessageHandler> ();
+	private System.Collections.Generic.Dictionary<int, IWebClientKeyMessageHandler> webClients = new System.Collections.Generic.Dictionary<int, IWebClientKeyMessageHandler> ();
 
 	// Use this for initialization
 	void OnEnable () {
@@ -25,15 +33,43 @@ public class ServerManager : MonoBehaviour {
 		ws.OnError += SocketError;
 		ws.OnClose += SocketConnectionClosed;
 
+		isConnected = false;
+
 		ws.Connect();
 	}
 
 	void OnDisable()
 	{
+		
 		ws.Close();
-
+		isConnected = false;
 	}
 
+	public static ServerManager Instance
+	{
+		get
+		{
+			if (instance == null)
+			{
+				
+				instance = FindObjectOfType<ServerManager>();
+				if (instance == null)
+				{
+					Debug.LogError("[ServerManager] Manager not found");
+				}
+			}
+			return instance;
+		}
+	}
+
+
+	public bool IsConnected
+	{
+		get
+		{
+			return isConnected;
+		}
+	}
 
 	private void SocketOpened(object sender, System.EventArgs e) {
 		//invoke when socket opened
@@ -50,6 +86,8 @@ public class ServerManager : MonoBehaviour {
 		ws.Send(SimpleJson.SimpleJson.SerializeObject(dict));
 		//ws.Send(UnityEngine.JsonUtility.ToJson(dict));
 		//ws.Send(UnityEngine.JsonUtility.ToJson(config));
+
+		isConnected = true;
 	}
 
 	private void SocketMessage (object sender, WebSocketSharp.MessageEventArgs e) {
@@ -79,6 +117,7 @@ public class ServerManager : MonoBehaviour {
 	private void SocketConnectionClosed(object sender, WebSocketSharp.CloseEventArgs e) {
 		//invoke when socket closed
 		Debug.Log("SocketConnectionClosed : " + e.Reason);
+		isConnected = false;
 	}
 
 	private void SocketError(object sender, WebSocketSharp.ErrorEventArgs e) {
@@ -155,12 +194,15 @@ public class ServerManager : MonoBehaviour {
 		if(json["webClients"] != null)
 		{
 			ReadClientList(json["webClients"]);
+
 			hasBeenParse = true;
 		}
 
 		if(json["pressButton"] != null)
 		{
-			ReadPressButton(json["pressButton"]);
+			//ReadPressButton(json["pressButton"]);
+			SimpleJSON.JSONNode pressButton = json["pressButton"];
+			DispatchClientPlayerMessage(pressButton["webClients"].GetHashCode(),pressButton);
 			hasBeenParse = true;
 		}
 
@@ -168,12 +210,24 @@ public class ServerManager : MonoBehaviour {
 	}
 
 
+	private System.Collections.Generic.List<string> _clientList = new System.Collections.Generic.List<string>();
+
+	public System.Collections.Generic.List<string> ClientList
+	{
+		get
+		{
+			return _clientList;
+		}
+	}
+
 	private void ReadClientList(SimpleJSON.JSONNode clientsNode)
 	{
+		_clientList.Clear();
 		Debug.Log("Found " + clientsNode.Count +" Clients");
 		for(int i = 0 ; i< clientsNode.Count ; i++)
 		{
 			Debug.Log("Found Client : " + clientsNode[i]["key"]);
+			_clientList.Add(clientsNode[i]["key"]);
 		}
 	}
 
@@ -186,6 +240,31 @@ public class ServerManager : MonoBehaviour {
 		Debug.Log("PressButton Client : " + clientKey +" -> " + buttonName + " ["+status+"]");
 
 	}
+
+	private void DispatchClientPlayerMessage(int key, SimpleJSON.JSONNode jsonNode)
+	{
+		if(webClients.ContainsKey(key))
+		{
+			webClients[key].ProcessMessage(jsonNode);
+		}
+	}
+
+	public void RegisterClientPlayer(IWebClientKeyMessageHandler client)
+	{
+		if(!webClients.ContainsKey(client.ClientKeyHash))
+		{
+			webClients.Add(client.ClientKeyHash,client);
+		}
+	}
+
+	public void UnregisterClientPlayer(IWebClientKeyMessageHandler client)
+	{
+		if(webClients.ContainsKey(client.ClientKeyHash))
+		{
+			webClients.Remove(client.ClientKeyHash);
+		}
+	}
+
 
 
 }
