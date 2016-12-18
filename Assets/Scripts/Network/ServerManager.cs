@@ -15,8 +15,8 @@ public class ServerManager : MonoBehaviour {
 
 	private bool isConnected = false;
 
-	//private System.Collections.Generic.Dictionary<string, IWebClientKeyMessageHandler> webClients = new System.Collections.Generic.Dictionary<string, IWebClientKeyMessageHandler> ();
-	private System.Collections.Generic.Dictionary<int, IWebClientKeyMessageHandler> webClients = new System.Collections.Generic.Dictionary<int, IWebClientKeyMessageHandler> ();
+	private System.Collections.Generic.Dictionary<string, IWebClientKeyMessageHandler> webClients = new System.Collections.Generic.Dictionary<string, IWebClientKeyMessageHandler> ();
+	//private System.Collections.Generic.Dictionary<int, IWebClientKeyMessageHandler> webClients = new System.Collections.Generic.Dictionary<int, IWebClientKeyMessageHandler> ();
 
 	// Use this for initialization
 	void OnEnable () {
@@ -93,13 +93,14 @@ public class ServerManager : MonoBehaviour {
 	private void SocketMessage (object sender, WebSocketSharp.MessageEventArgs e) {
 		if ( e!= null)
 		{
+
 			if(e.IsPing)
 			{
 				Debug.Log("Socket Receive PING ");
 			}
 			else if(e.IsText)
 			{
-
+				Debug.Log("[New Message Text]");
 				if(!ParseMessage(e.Data))
 					Debug.Log("Unparse Message : " + e.Data);
 			}
@@ -175,6 +176,7 @@ public class ServerManager : MonoBehaviour {
 
 	private bool ParseMessage(string msg)
 	{
+		
 		SimpleJSON.JSONNode json = null;
 		try
 		{
@@ -200,9 +202,10 @@ public class ServerManager : MonoBehaviour {
 
 		if(json["pressButton"] != null)
 		{
+			Debug.Log("[ParseMessage] : " + msg);
 			//ReadPressButton(json["pressButton"]);
 			SimpleJSON.JSONNode pressButton = json["pressButton"];
-			DispatchClientPlayerMessage(pressButton["webClients"].GetHashCode(),pressButton);
+			DispatchClientPlayerMessage(pressButton["webClientKey"],pressButton);
 			hasBeenParse = true;
 		}
 
@@ -241,27 +244,33 @@ public class ServerManager : MonoBehaviour {
 
 	}
 
-	private void DispatchClientPlayerMessage(int key, SimpleJSON.JSONNode jsonNode)
+	private void DispatchClientPlayerMessage(string key, SimpleJSON.JSONNode jsonNode)
 	{
 		if(webClients.ContainsKey(key))
 		{
 			webClients[key].ProcessMessage(jsonNode);
 		}
+		else
+		{
+			Debug.LogError("Player Key not found");
+		}
 	}
 
 	public void RegisterClientPlayer(IWebClientKeyMessageHandler client)
 	{
-		if(!webClients.ContainsKey(client.ClientKeyHash))
+		//if(!webClients.ContainsKey(client.ClientKeyHash))
+		if(!webClients.ContainsKey(client.ClientKey))
 		{
-			webClients.Add(client.ClientKeyHash,client);
+			webClients.Add(client.ClientKey,client);
 		}
 	}
 
 	public void UnregisterClientPlayer(IWebClientKeyMessageHandler client)
 	{
-		if(webClients.ContainsKey(client.ClientKeyHash))
+		//if(webClients.ContainsKey(client.ClientKeyHash))
+		if(webClients.ContainsKey(client.ClientKey))
 		{
-			webClients.Remove(client.ClientKeyHash);
+			webClients.Remove(client.ClientKey);
 		}
 	}
 

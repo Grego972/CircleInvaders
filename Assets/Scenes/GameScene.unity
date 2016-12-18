@@ -1083,7 +1083,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    adress: ws://10.9.8.10:3003
+    adress: ws://10.9.8.32:3003
     name: UnityServer42
     roomSize: 16
   loadXmlConfig: 0

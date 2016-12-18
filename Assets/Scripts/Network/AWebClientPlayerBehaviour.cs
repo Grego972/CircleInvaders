@@ -82,7 +82,7 @@ public abstract class AWebClientPlayerBehaviour : MonoBehaviour, IWebClientKeyMe
 		string buttonName = jsonNode["button"];
 		bool status = jsonNode["status"].AsBool;
 
-		//Debug.Log("PressButton Client : " + clientKey +" -> " + buttonName + " ["+status+"]");
+		Debug.Log("PressButton Client : " + clientKey +" -> " + buttonName + " ["+status+"]");
 
 		switch(buttonName)
 		{
@@ -90,6 +90,7 @@ public abstract class AWebClientPlayerBehaviour : MonoBehaviour, IWebClientKeyMe
 		case "down":BtnDown = status;return;
 		case "left":BtnLeft = status;return;
 		case "right":BtnRight = status;return;
+		case "fire":BtnFire1 = status;return;
 		case "fire1":BtnFire1 = status;return;
 		case "fire2":BtnFire2 = status;return;
 

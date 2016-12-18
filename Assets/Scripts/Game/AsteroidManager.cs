@@ -112,7 +112,7 @@ public class AsteroidManager : MonoBehaviour {
 		if(tryCount == 0)
 		{
 			//Fail to find a good position for the new asteroid
-			Debug.LogWarning("Fail to find a good position for the new asteroid");
+			//Debug.LogWarning("Fail to find a good position for the new asteroid");
 			return;
 		}
 
